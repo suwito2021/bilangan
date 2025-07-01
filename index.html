@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petualangan Bilangan Bulat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals & Soft Accents -->
+    <!-- Application Structure Plan: Aplikasi ini dirancang dengan struktur 4 bagian tematik untuk mengubah pembelajaran pasif (presentasi) menjadi pengalaman aktif. Strukturnya adalah: 1) Dunia Bilangan Bulat (pengenalan relevansi melalui kartu interaktif), 2) Jelajahi Garis Bilangan (inti interaktif untuk memahami konsep perbandingan secara visual), 3) Uji Kemampuanmu (latihan gamifikasi dengan umpan balik langsung), dan 4) Rangkuman & Refleksi (konsolidasi pengetahuan). Struktur ini dipilih karena mengikuti alur belajar yang logis (Mengapa -> Apa & Bagaimana -> Latihan -> Refleksi) yang lebih efektif untuk pemahaman mendalam dibandingkan meniru urutan slide. -->
+    <!-- Visualization & Content Choices: 1. Relevansi (Inform): Kartu interaktif HTML/CSS/JS untuk menunjukkan contoh dunia nyata secara visual. 2. Definisi & Perbandingan (Compare, Inform): Garis bilangan interaktif custom menggunakan HTML Canvas & JS. Ini memungkinkan interaksi drag-and-drop yang tidak bisa dicapai dengan mudah oleh Chart.js, memberikan pengalaman belajar kinestetik. 3. Latihan (Apply): Kuis interaktif JS, dengan satu soal (perbandingan suhu) divisualisasikan menggunakan Chart.js (Bar Chart) untuk memberikan bantuan visual. Ini adalah penggunaan Chart.js yang tepat untuk perbandingan data kategorikal. 4. Refleksi (Inform): Accordion UI menggunakan HTML/JS untuk menyajikan informasi secara ringkas dan tidak membanjiri pengguna. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fefbec; /* Amber 50 */
+            color: #44403c; /* Stone 700 */
+        }
+        .nav-button {
+            transition: all 0.3s ease;
+        }
+        .nav-button.active {
+            background-color: #fbbf24; /* Amber 400 */
+            color: #44403c; /* Stone 700 */
+        }
+        .nav-button:not(.active):hover {
+            background-color: #fde68a; /* Amber 200 */
+        }
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .quiz-option.correct {
+            background-color: #dcfce7; /* Green 100 */
+            border-color: #22c55e; /* Green 500 */
+            color: #15803d; /* Green 700 */
+        }
+        .quiz-option.incorrect {
+            background-color: #fee2e2; /* Red 100 */
+            border-color: #ef4444; /* Red 500 */
+            color: #b91c1c; /* Red 700 */
+        }
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 300px;
+            width: 100%;
+            max-width: 600px;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="text-center py-8 md:py-12 bg-amber-100">
+        <div class="max-w-4xl mx-auto px-4">
+            <h1 class="text-4xl md:text-5xl font-bold text-amber-900">Petualangan Bilangan Bulat</h1>
+            <p class="mt-4 text-lg text-amber-800">Menjelajahi dunia angka positif, negatif, dan nol dengan cara yang seru!</p>
+        </div>
+    </header>
+
+    <nav class="sticky top-0 bg-white/80 backdrop-blur-md z-10 shadow-sm">
+        <div class="max-w-5xl mx-auto flex justify-center items-center p-2 space-x-2 md:space-x-4">
+            <button onclick="scrollToSection('dunia')" class="nav-button active text-sm md:text-base font-semibold px-3 py-2 md:px-4 rounded-full" data-section="dunia">1. Dunia Nyata</button>
+            <button onclick="scrollToSection('garis-bilangan')" class="nav-button text-sm md:text-base font-semibold px-3 py-2 md:px-4 rounded-full" data-section="garis-bilangan">2. Garis Bilangan</button>
+            <button onclick="scrollToSection('uji-kemampuan')" class="nav-button text-sm md:text-base font-semibold px-3 py-2 md:px-4 rounded-full" data-section="uji-kemampuan">3. Uji Kemampuan</button>
+            <button onclick="scrollToSection('rangkuman')" class="nav-button text-sm md:text-base font-semibold px-3 py-2 md:px-4 rounded-full" data-section="rangkuman">4. Rangkuman</button>
+        </div>
+    </nav>
+
+    <main class="max-w-5xl mx-auto p-4 md:p-8">
+
+        <section id="dunia" class="py-12 md:py-16">
+            <h2 class="text-3xl font-bold text-center mb-4">Di Mana Kita Menemukan Bilangan Bulat?</h2>
+            <p class="text-center max-w-2xl mx-auto mb-10">Bilangan bulat bukan hanya ada di buku matematika. Kita menggunakannya setiap hari! Coba klik kartu-kartu di bawah untuk melihat contohnya.</p>
+            <div id="world-examples-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            </div>
+        </section>
+
+        <section id="garis-bilangan" class="py-12 md:py-16 bg-white rounded-2xl shadow-lg p-6 md:p-8">
+            <h2 class="text-3xl font-bold text-center mb-2">Jelajahi Garis Bilangan</h2>
+            <p class="text-center max-w-2xl mx-auto mb-8">Garis bilangan adalah peta untuk bilangan bulat. Semakin ke kanan, nilainya semakin besar. Semakin ke kiri, nilainya semakin kecil. Coba geser dua titik di bawah ini dan perhatikan perbandingannya!</p>
+            <div id="comparison-display" class="text-center text-2xl md:text-3xl font-bold my-6 p-4 bg-amber-100 rounded-lg min-h-[70px] flex items-center justify-center">
+                Geser titik untuk memulai!
+            </div>
+            <div class="relative w-full h-24 flex items-center justify-center">
+                <canvas id="interactive-number-line"></canvas>
+            </div>
+            <div class="mt-8 text-center bg-sky-50 p-6 rounded-lg">
+                <h3 class="font-bold text-xl mb-2 text-sky-800">Keluarga Bilangan Bulat</h3>
+                <p class="text-sky-700"><strong class="text-green-600">Positif (> 0):</strong> 1, 2, 3, ... (di sebelah kanan 0).</p>
+                <p class="text-sky-700"><strong class="text-stone-600">Nol (0):</strong> Titik tengah, tidak positif dan tidak negatif.</p>
+                <p class="text-sky-700"><strong class="text-red-600">Negatif (< 0):</strong> -1, -2, -3, ... (di sebelah kiri 0).</p>
+            </div>
+        </section>
+
+        <section id="uji-kemampuan" class="py-12 md:py-16">
+            <h2 class="text-3xl font-bold text-center mb-4">Uji Kemampuanmu!</h2>
+            <p class="text-center max-w-2xl mx-auto mb-10">Sekarang saatnya mencoba apa yang sudah kamu pelajari. Jawab pertanyaan berikut untuk menguji pemahamanmu.</p>
+            <div id="quiz-container" class="bg-white rounded-2xl shadow-lg p-6 md:p-8 max-w-3xl mx-auto">
+                <div id="quiz-progress" class="w-full bg-gray-200 rounded-full h-2.5 mb-6">
+                    <div id="quiz-progress-bar" class="bg-amber-400 h-2.5 rounded-full" style="width: 0%"></div>
+                </div>
+                <div id="quiz-content">
+                    <h3 id="quiz-question" class="text-xl md:text-2xl font-semibold mb-6 text-center min-h-[64px]"></h3>
+                    <div id="quiz-chart-container" class="chart-container mb-6" style="display: none;">
+                        <canvas id="quiz-chart"></canvas>
+                    </div>
+                    <div id="quiz-options" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                </div>
+                <div id="quiz-feedback" class="mt-6 text-center"></div>
+                <div class="text-center mt-6">
+                    <button id="next-quiz-btn" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-8 rounded-full transition-colors hidden">Lanjut</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="rangkuman" class="py-12 md:py-16">
+            <h2 class="text-3xl font-bold text-center mb-4">Rangkuman & Refleksi</h2>
+            <p class="text-center max-w-2xl mx-auto mb-10">Mari kita ingat kembali poin-poin penting dan pikirkan apa yang sudah kita pelajari hari ini.</p>
+            <div id="accordion-container" class="space-y-4 max-w-3xl mx-auto">
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="text-center p-6 bg-amber-100 text-amber-800 mt-12">
+        <p>&copy; 2025 Petualangan Bilangan Bulat. Dibuat dengan semangat belajar matematika!</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const worldExamples = [
+                {
+                    title: 'Suhu Udara',
+                    icon: '🌡️',
+                    description: 'Suhu di puncak gunung bisa di bawah nol, seperti -5°C. Ini adalah bilangan bulat negatif.',
+                    value: '-5°C'
+                },
+                {
+                    title: 'Kedalaman Laut',
+                    icon: '🌊',
+                    description: 'Posisi kapal selam di bawah permukaan laut bisa ditulis sebagai -50 meter.',
+                    value: '-50 m'
+                },
+                {
+                    title: 'Keuangan',
+                    icon: '💰',
+                    description: 'Jika kamu berutang Rp10.000, neracamu bisa ditulis sebagai -10.000.',
+                    value: '-Rp10.000'
+                },
+                {
+                    title: 'Skor Golf',
+                    icon: '⛳',
+                    description: 'Dalam golf, skor di bawah par (standar) adalah hal yang bagus, contohnya -2.',
+                    value: '-2 Pukulan'
+                },
+                {
+                    title: 'Ketinggian Daratan',
+                    icon: '⛰️',
+                    description: 'Puncak gunung berada di atas permukaan laut, seperti +2.900 meter.',
+                    value: '+2900 m'
+                },
+                {
+                    title: 'Lantai Lift',
+                    icon: '🏢',
+                    description: 'Lantai parkir di bawah tanah (basement) sering diberi label -1, -2, dan seterusnya.',
+                    value: 'Lantai -1'
+                }
+            ];
+
+            const worldGrid = document.getElementById('world-examples-grid');
+            worldExamples.forEach(ex => {
+                const card = document.createElement('div');
+                card.className = 'card bg-white rounded-xl shadow p-6 cursor-pointer';
+                card.innerHTML = `
+                    <div class="flex items-center mb-3">
+                        <span class="text-4xl mr-4">${ex.icon}</span>
+                        <h3 class="text-xl font-bold text-amber-800">${ex.title}</h3>
+                    </div>
+                    <p class="text-stone-600">${ex.description}</p>
+                    <div class="mt-4 text-right text-2xl font-bold text-stone-700">${ex.value}</div>
+                `;
+                worldGrid.appendChild(card);
+            });
+
+
+            const canvas = document.getElementById('interactive-number-line');
+            const ctx = canvas.getContext('2d');
+            const comparisonDisplay = document.getElementById('comparison-display');
+
+            let width, height, centerY;
+            const range = 10;
+            let unit;
+
+            const pointers = [
+                { x: 0, y: 0, radius: 10, color: '#3b82f6', value: -3, isDragging: false },
+                { x: 0, y: 0, radius: 10, color: '#f97316', value: 4, isDragging: false }
+            ];
+            
+            function setupCanvas() {
+                const container = canvas.parentElement;
+                width = container.clientWidth;
+                height = container.clientHeight;
+                canvas.width = width;
+                canvas.height = height;
+                centerY = height / 2;
+                unit = width / (2 * range + 2);
+
+                pointers.forEach(p => {
+                    p.x = width / 2 + p.value * unit;
+                    p.y = centerY;
+                });
+                
+                draw();
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, width, height);
+                
+                ctx.strokeStyle = '#9ca3af';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(unit, centerY);
+                ctx.lineTo(width - unit, centerY);
+                ctx.stroke();
+
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.font = '14px Inter';
+                for (let i = -range; i <= range; i++) {
+                    const x = width / 2 + i * unit;
+                    ctx.beginPath();
+                    ctx.moveTo(x, centerY - 8);
+                    ctx.lineTo(x, centerY + 8);
+                    ctx.stroke();
+                    ctx.fillStyle = i === 0 ? '#1f2937' : '#6b7280';
+                    ctx.fillText(i, x, centerY + 25);
+                }
+
+                pointers.forEach(p => {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = p.color;
+                    ctx.fill();
+                    ctx.strokeStyle = 'white';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                });
+
+                updateComparison();
+            }
+
+            function updateComparison() {
+                const val1 = Math.round((pointers[0].x - width / 2) / unit);
+                const val2 = Math.round((pointers[1].x - width / 2) / unit);
+                pointers[0].value = val1;
+                pointers[1].value = val2;
+
+                let comparisonSymbol = '=';
+                if (val1 < val2) comparisonSymbol = '<';
+                if (val1 > val2) comparisonSymbol = '>';
+
+                comparisonDisplay.innerHTML = `
+                    <span style="color:${pointers[0].color}">${val1}</span>
+                    <span class="mx-4">${comparisonSymbol}</span>
+                    <span style="color:${pointers[1].color}">${val2}</span>
+                `;
+            }
+
+            function getMousePos(evt) {
+                const rect = canvas.getBoundingClientRect();
+                return {
+                    x: evt.clientX - rect.left,
+                    y: evt.clientY - rect.top
+                };
+            }
+
+            canvas.addEventListener('mousedown', e => {
+                const pos = getMousePos(e);
+                pointers.forEach(p => {
+                    const dist = Math.sqrt((pos.x - p.x)**2 + (pos.y - p.y)**2);
+                    if (dist < p.radius + 5) {
+                        p.isDragging = true;
+                    }
+                });
+            });
+
+            canvas.addEventListener('mousemove', e => {
+                const pos = getMousePos(e);
+                let isDraggingAny = false;
+                pointers.forEach(p => {
+                    if (p.isDragging) {
+                        isDraggingAny = true;
+                        p.x = Math.max(unit, Math.min(pos.x, width - unit));
+                        draw();
+                    }
+                });
+                canvas.style.cursor = isDraggingAny ? 'grabbing' : 'pointer';
+            });
+
+            canvas.addEventListener('mouseup', () => {
+                pointers.forEach(p => p.isDragging = false);
+                canvas.style.cursor = 'pointer';
+            });
+             canvas.addEventListener('mouseleave', () => {
+                pointers.forEach(p => p.isDragging = false);
+                canvas.style.cursor = 'default';
+            });
+
+            window.addEventListener('resize', setupCanvas);
+            setupCanvas();
+            updateComparison();
+
+            const quizData = [
+                {
+                    question: "Manakah yang lebih besar, -5 atau 2?",
+                    options: ["-5", "2", "Sama besar"],
+                    answer: "2"
+                },
+                {
+                    question: "Manakah yang lebih kecil, 0 atau -3?",
+                    options: ["0", "-3", "Sama besar"],
+                    answer: "-3"
+                },
+                {
+                    question: "Isilah titik-titik: -12 ... -15",
+                    options: ["<", ">", "="],
+                    answer: ">"
+                },
+                {
+                    question: "Urutkan dari yang terkecil: 5, -2, 0, -7, 3",
+                    options: [
+                        "-7, -2, 0, 3, 5",
+                        "5, 3, 0, -2, -7",
+                        "0, -2, 3, 5, -7"
+                    ],
+                    answer: "-7, -2, 0, 3, 5"
+                },
+                {
+                    question: "Kota A memiliki suhu -3°C, Kota B 5°C, dan Kota C -8°C. Kota mana yang paling dingin?",
+                    options: ["Kota A", "Kota B", "Kota C"],
+                    answer: "Kota C",
+                    chart: {
+                        labels: ["Kota A", "Kota B", "Kota C"],
+                        data: [-3, 5, -8],
+                        type: 'bar'
+                    }
+                }
+            ];
+
+            let currentQuestionIndex = 0;
+            const quizQuestionEl = document.getElementById('quiz-question');
+            const quizOptionsEl = document.getElementById('quiz-options');
+            const quizFeedbackEl = document.getElementById('quiz-feedback');
+            const nextQuizBtn = document.getElementById('next-quiz-btn');
+            const progressBar = document.getElementById('quiz-progress-bar');
+            const chartContainer = document.getElementById('quiz-chart-container');
+            const chartCanvas = document.getElementById('quiz-chart');
+            let quizChart;
+
+            function loadQuizQuestion() {
+                quizFeedbackEl.innerHTML = '';
+                nextQuizBtn.classList.add('hidden');
+                quizOptionsEl.innerHTML = '';
+                chartContainer.style.display = 'none';
+                if(quizChart) quizChart.destroy();
+
+                if (currentQuestionIndex >= quizData.length) {
+                    quizQuestionEl.textContent = "Selamat, kamu telah menyelesaikan semua pertanyaan!";
+                    quizOptionsEl.innerHTML = '<p class="text-center md:col-span-2">Kamu hebat! Teruslah berlatih untuk menjadi master bilangan bulat!</p>';
+                    progressBar.style.width = '100%';
+                    return;
+                }
+
+                const q = quizData[currentQuestionIndex];
+                quizQuestionEl.textContent = q.question;
+                
+                if(q.chart){
+                    chartContainer.style.display = 'block';
+                    quizChart = new Chart(chartCanvas, {
+                        type: 'bar',
+                        data: {
+                            labels: q.chart.labels,
+                            datasets: [{
+                                label: 'Suhu (°C)',
+                                data: q.chart.data,
+                                backgroundColor: q.chart.data.map(d => d < 0 ? 'rgba(59, 130, 246, 0.6)' : 'rgba(249, 115, 22, 0.6)'),
+                                borderColor: q.chart.data.map(d => d < 0 ? 'rgba(59, 130, 246, 1)' : 'rgba(249, 115, 22, 1)'),
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: false,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return value + '°C'
+                                        }
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return `Suhu: ${context.raw}°C`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                q.options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.className = 'quiz-option w-full p-4 border-2 border-gray-300 rounded-lg text-lg hover:bg-amber-100 hover:border-amber-400 transition-colors';
+                    button.onclick = () => checkAnswer(option, q.answer);
+                    quizOptionsEl.appendChild(button);
+                });
+
+                progressBar.style.width = `${(currentQuestionIndex / quizData.length) * 100}%`;
+            }
+
+            function checkAnswer(selected, correct) {
+                const buttons = quizOptionsEl.querySelectorAll('button');
+                let isCorrect = selected === correct;
+
+                buttons.forEach(btn => {
+                    btn.disabled = true;
+                    if (btn.textContent === correct) {
+                        btn.classList.add('correct');
+                    } else if (btn.textContent === selected) {
+                        btn.classList.add('incorrect');
+                    }
+                });
+
+                if (isCorrect) {
+                    quizFeedbackEl.innerHTML = '<p class="text-green-600 font-bold text-xl">Benar! Jawabanmu tepat!</p>';
+                } else {
+                    quizFeedbackEl.innerHTML = `<p class="text-red-600 font-bold text-xl">Hampir benar! Jawaban yang tepat adalah "${correct}".</p>`;
+                }
+                nextQuizBtn.classList.remove('hidden');
+            }
+
+            nextQuizBtn.addEventListener('click', () => {
+                currentQuestionIndex++;
+                loadQuizQuestion();
+            });
+
+            loadQuizQuestion();
+
+            const accordionData = [
+                {
+                    title: "Apa itu Bilangan Bulat?",
+                    content: "Bilangan bulat adalah himpunan semua bilangan yang terdiri dari bilangan bulat positif (1, 2, 3, ...), nol (0), dan bilangan bulat negatif (-1, -2, -3, ...)."
+                },
+                {
+                    title: "Bagaimana cara membandingkan bilangan bulat?",
+                    content: "Gunakan garis bilangan! Bilangan yang berada di sebelah kanan selalu lebih besar dari bilangan di sebelah kiri. Contoh: -1 > -5 karena -1 berada di sebelah kanan -5."
+                },
+                {
+                    title: "Refleksi: Mengapa tanda minus penting?",
+                    content: "Tanda minus (-) sangat penting karena ia mengubah 'arah' atau nilai suatu angka. Tanpa tanda minus, kita tidak bisa membedakan antara keuntungan dan kerugian, suhu panas dan dingin, atau ketinggian dan kedalaman."
+                },
+                {
+                    title: "Refleksi: Apa yang menantang hari ini?",
+                    content: "Mungkin bagian yang paling menantang adalah memahami bahwa untuk bilangan negatif, angka yang terlihat lebih besar (seperti -10) sebenarnya memiliki nilai yang lebih kecil daripada angka yang terlihat lebih kecil (seperti -2). Teruslah berlatih dengan garis bilangan untuk membiasakan diri!"
+                },
+                 {
+                    title: "Tantangan Selanjutnya",
+                    content: "Setelah menguasai perbandingan, selanjutnya kita akan belajar tentang operasi bilangan bulat: penjumlahan, pengurangan, perkalian, dan pembagian. Siap untuk petualangan berikutnya?"
+                },
+            ];
+            
+            const accordionContainer = document.getElementById('accordion-container');
+            accordionData.forEach((item, index) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'bg-white rounded-xl shadow-sm overflow-hidden';
+                wrapper.innerHTML = `
+                    <button class="w-full flex justify-between items-center text-left p-5 font-semibold text-lg text-amber-900 bg-amber-100 hover:bg-amber-200 transition-colors">
+                        <span>${item.title}</span>
+                        <svg class="w-6 h-6 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="px-5 transition-all duration-500 max-h-0 overflow-hidden">
+                        <p class="py-5 text-stone-600">${item.content}</p>
+                    </div>
+                `;
+                const button = wrapper.querySelector('button');
+                const content = wrapper.querySelector('.px-5');
+                const icon = wrapper.querySelector('svg');
+
+                button.addEventListener('click', () => {
+                    if (content.style.maxHeight && content.style.maxHeight !== '0px') {
+                        content.style.maxHeight = '0px';
+                        icon.style.transform = 'rotate(0deg)';
+                    } else {
+                        content.style.maxHeight = content.scrollHeight + 'px';
+                        icon.style.transform = 'rotate(180deg)';
+                    }
+                });
+                accordionContainer.appendChild(wrapper);
+            });
+
+
+            const sections = document.querySelectorAll('section');
+            const navButtons = document.querySelectorAll('.nav-button');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 100) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navButtons.forEach(button => {
+                    button.classList.remove('active');
+                    if (button.getAttribute('data-section') === current) {
+                        button.classList.add('active');
+                    }
+                });
+            });
+        });
+
+        function scrollToSection(id) {
+            const section = document.getElementById(id);
+            if (section) {
+                window.scrollTo({
+                    top: section.offsetTop - 80, 
+                    behavior: 'smooth'
+                });
+            }
+        }
+    </script>
+</body>
+</html>
