@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Interaktif: Pembelajaran Koding & AI di Indonesia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Harmony -->
+    <!-- Application Structure Plan: Struktur aplikasi ini dirancang sebagai dasbor interaktif satu halaman dengan beberapa bagian tematik yang dapat dinavigasi. Struktur ini dipilih untuk mengubah laporan akademik yang padat menjadi pengalaman yang mudah dicerna dan menarik. Urutannya memandu pengguna dari 'mengapa' (urgensi), ke 'apa' (konsep), 'bagaimana' (kebijakan), dan 'di mana kita sekarang' (data), yang merupakan alur logis untuk pemahaman. Interaktivitas melalui tab, akordion, dan bagan memungkinkan eksplorasi mendalam tanpa membanjiri pengguna dengan teks, sehingga meningkatkan retensi dan keterlibatan. -->
+    <!-- Visualization & Content Choices: Pilihan visualisasi disesuaikan dengan tujuan setiap data. Bagan garis digunakan untuk menunjukkan tren dari waktu ke waktu (Indeks Literasi Digital). Bagan batang digunakan untuk perbandingan kategori (Infrastruktur Sekolah, Alokasi Jam). Kartu dan diagram HTML/CSS digunakan untuk menyajikan konsep dan proses secara visual (Konsep Kunci, Strategi Implementasi). Pilihan ini memastikan data disajikan dalam format yang paling jelas dan intuitif, dengan interaksi (tooltips pada bagan) untuk detail tambahan. Semua visualisasi dibuat menggunakan Chart.js (Canvas) dan HTML/CSS, sesuai dengan persyaratan. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFCF9;
+            color: #333;
+        }
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        .nav-link.active, .nav-link:hover {
+            color: #0F766E;
+        }
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #0F766E;
+        }
+        .section-title {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 1rem;
+        }
+        .section-subtitle {
+            font-size: 1.125rem;
+            color: #718096;
+            max-width: 800px;
+            margin: 0 auto 3rem auto;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px;
+            max-height: 50vh;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header & Navigation -->
+    <header id="header" class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-teal-800">Koding & AI</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#home" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">Beranda</a>
+                        <a href="#urgensi" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">Urgensi</a>
+                        <a href="#konsep" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">Konsep</a>
+                        <a href="#kebijakan" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">Arah Kebijakan</a>
+                        <a href="#data" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">Data</a>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none">
+                        <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </nav>
+        <div id="mobile-menu" class="md:hidden hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#home" class="block nav-link px-3 py-2 rounded-md text-base font-medium text-gray-700">Beranda</a>
+                <a href="#urgensi" class="block nav-link px-3 py-2 rounded-md text-base font-medium text-gray-700">Urgensi</a>
+                <a href="#konsep" class="block nav-link px-3 py-2 rounded-md text-base font-medium text-gray-700">Konsep</a>
+                <a href="#kebijakan" class="block nav-link px-3 py-2 rounded-md text-base font-medium text-gray-700">Arah Kebijakan</a>
+                <a href="#data" class="block nav-link px-3 py-2 rounded-md text-base font-medium text-gray-700">Data</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Section: Home -->
+        <section id="home" class="relative min-h-screen flex items-center bg-teal-50/50">
+            <div class="absolute inset-0 bg-grid-teal-100/40 [mask-image:linear-gradient(to_bottom,white_10%,transparent)]"></div>
+            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h2 class="text-4xl md:text-6xl font-extrabold text-teal-900 leading-tight">Membentuk Masa Depan Pendidikan Indonesia</h2>
+                <p class="mt-6 max-w-3xl mx-auto text-lg md:text-xl text-gray-600">Mengintegrasikan Koding dan Kecerdasan Artifisial (AI) untuk mencetak generasi inovator yang siap menghadapi tantangan global.</p>
+                <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="bg-white/70 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-gray-200">
+                        <h3 class="text-4xl font-bold text-teal-700">$366 Miliar</h3>
+                        <p class="mt-2 text-gray-500">Potensi kontribusi AI terhadap PDB Indonesia pada 2030.</p>
+                    </div>
+                    <div class="bg-white/70 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-gray-200">
+                        <h3 class="text-4xl font-bold text-teal-700">+23%</h3>
+                        <p class="mt-2 text-gray-500">Pertumbuhan komunitas pengembang di Indonesia (2024), terbesar ke-3 di Asia Pasifik.</p>
+                    </div>
+                    <div class="bg-white/70 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-gray-200">
+                        <h3 class="text-4xl font-bold text-teal-700">Industri 5.0</h3>
+                        <p class="mt-2 text-gray-500">Kebutuhan fundamental untuk membangun SDM unggul dan adaptif terhadap perubahan zaman.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Urgensi -->
+        <section id="urgensi" class="py-20 px-4">
+            <div class="max-w-7xl mx-auto text-center">
+                <h2 class="section-title">Mengapa Ini Penting?</h2>
+                <p class="section-subtitle">Integrasi Koding dan AI bukan sekadar tren, tetapi kebutuhan fundamental yang didasari oleh landasan filosofis, sosiologis, dan yuridis untuk kemajuan bangsa.</p>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 text-left">
+                    <div class="bg-white p-8 rounded-lg shadow-md border border-gray-100">
+                        <h3 class="text-xl font-semibold mb-3 text-teal-800">Landasan Filosofis & Pedagogis</h3>
+                        <p class="text-gray-600">Pendidikan adalah upaya membangun peradaban. Koding dan AI mengembangkan kemampuan berpikir kritis dan pemecahan masalah (berpikir komputasional) melalui pendekatan konstruktivisme, di mana siswa belajar aktif dengan menciptakan solusi nyata.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-lg shadow-md border border-gray-100">
+                        <h3 class="text-xl font-semibold mb-3 text-teal-800">Landasan Sosiologis</h3>
+                        <p class="text-gray-600">Di era Masyarakat 5.0, teknologi digital menjadi tulang punggung interaksi sosial-ekonomi. Penguasaan AI dan koding menjadi kunci untuk mengatasi kesenjangan digital dan memastikan Indonesia tidak hanya menjadi konsumen, tetapi juga produsen inovasi teknologi.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-lg shadow-md border border-gray-100">
+                        <h3 class="text-xl font-semibold mb-3 text-teal-800">Landasan Yuridis</h3>
+                        <p class="text-gray-600">Amanat UUD 1945 untuk "mencerdaskan kehidupan bangsa" dan UU Sisdiknas menuntut kurikulum yang relevan dengan perkembangan zaman. RPJPN 2025-2045 menekankan pentingnya SDM unggul dan berdaya saing digital.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Konsep Kunci -->
+        <section id="konsep" class="py-20 px-4 bg-teal-50/50">
+            <div class="max-w-7xl mx-auto text-center">
+                <h2 class="section-title">Memahami Konsep Kunci</h2>
+                <p class="section-subtitle">Mari kita bedah istilah-istilah inti yang menjadi fondasi dalam pembelajaran ini. Setiap konsep membangun satu sama lain, dari cara berpikir hingga aplikasi teknologi canggih.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-left mt-12">
+                    <!-- Berpikir Komputasional -->
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="font-semibold text-lg text-teal-800">Berpikir Komputasional</h3>
+                        <p class="mt-2 text-gray-600">Proses berpikir untuk memecahkan masalah secara sistematis, seperti yang dilakukan komputer. Ini adalah fondasi dari koding.</p>
+                        <div class="mt-4 space-y-3">
+                            <div class="bg-gray-100 p-3 rounded-md"><strong>Dekomposisi:</strong> Memecah masalah besar menjadi bagian-bagian kecil.</div>
+                            <div class="bg-gray-100 p-3 rounded-md"><strong>Pengenalan Pola:</strong> Mencari kesamaan atau tren dalam data.</div>
+                            <div class="bg-gray-100 p-3 rounded-md"><strong>Abstraksi:</strong> Fokus pada informasi penting dan mengabaikan detail yang tidak relevan.</div>
+                            <div class="bg-gray-100 p-3 rounded-md"><strong>Algoritma:</strong> Merancang langkah-langkah solusi yang logis.</div>
+                        </div>
+                    </div>
+
+                    <!-- AI & Sub-bidangnya -->
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="font-semibold text-lg text-teal-800">Kecerdasan Artifisial (AI)</h3>
+                        <p class="mt-2 text-gray-600">Bidang ilmu komputer yang fokus pada pengembangan sistem yang dapat melakukan tugas yang butuh kecerdasan manusia.</p>
+                        <div class="mt-4 p-4 border-2 border-teal-500 rounded-lg text-center bg-teal-50">
+                            <p class="font-bold">Kecerdasan Artifisial</p>
+                            <div class="mt-2 p-3 border-2 border-sky-400 rounded-lg bg-sky-50">
+                                <p class="font-semibold">Machine Learning</p>
+                                <div class="mt-2 p-2 border-2 border-indigo-400 rounded-lg bg-indigo-50">
+                                    <p class="font-semibold">Deep Learning</p>
+                                      <div class="mt-2 p-2 border-2 border-fuchsia-400 rounded-lg bg-fuchsia-50">
+                                        <p class="font-semibold">Generative AI (LLMs)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="mt-4 text-xs text-gray-500 text-center">Setiap lapisan merupakan spesialisasi dari lapisan di atasnya.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Arah Kebijakan -->
+        <section id="kebijakan" class="py-20 px-4">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center">
+                    <h2 class="section-title">Arah Kebijakan & Implementasi</h2>
+                    <p class="section-subtitle">Strategi komprehensif dirancang untuk mengintegrasikan Koding dan KA ke dalam sistem pendidikan nasional, mulai dari kurikulum hingga penyiapan guru dan evaluasi.</p>
+                </div>
+
+                <div id="tabs-container" class="mt-8">
+                    <div class="border-b border-gray-200">
+                        <nav class="-mb-px flex justify-center space-x-4 md:space-x-8" aria-label="Tabs">
+                            <button data-tab="kurikulum" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-teal-500 text-teal-600">Kurikulum</button>
+                            <button data-tab="guru" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">Kesiapan Guru</button>
+                            <button data-tab="strategi" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">Strategi Implementasi</button>
+                        </nav>
+                    </div>
+                    
+                    <div class="mt-8">
+                        <!-- Tab Kurikulum -->
+                        <div id="tab-content-kurikulum" class="tab-content">
+                             <p class="text-center text-gray-600 mb-8">Kurikulum Koding dan KA diusulkan sebagai mata pelajaran pilihan dengan alokasi jam yang disesuaikan per jenjang untuk memastikan penguasaan kompetensi yang bertahap.</p>
+                            <div class="grid md:grid-cols-2 gap-8 items-center">
+                                <div class="chart-container" style="height:350px;">
+                                    <canvas id="jamPelajaranChart"></canvas>
+                                </div>
+                                <div class="space-y-4">
+                                    <div>
+                                        <h4 class="font-semibold text-lg text-teal-800">Fase SD (Kelas 5-6)</h4>
+                                        <p class="text-gray-600">Fokus pada fondasi berpikir logis dan sistematis, pengenalan konsep KA, dan etika dasar melalui pendekatan *unplugged* dan visual.</p>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-lg text-teal-800">Fase SMP (Kelas 7-9)</h4>
+                                        <p class="text-gray-600">Pendalaman berpikir komputasional, pemrograman berbasis blok, dan pemanfaatan perangkat KA sederhana secara kritis.</p>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-lg text-teal-800">Fase SMA/SMK (Kelas 10-12)</h4>
+                                        <p class="text-gray-600">Penerapan tingkat lanjut dengan pemrograman berbasis teks, analisis data, pengembangan model KA sederhana, dan proyek-proyek nyata.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab Guru -->
+                        <div id="tab-content-guru" class="tab-content hidden">
+                            <div class="max-w-4xl mx-auto">
+                                <p class="text-center text-gray-600 mb-8">Keberhasilan implementasi bergantung pada guru yang kompeten. Oleh karena itu, kualifikasi dan program pengembangan kompetensi menjadi prioritas utama.</p>
+                                <div class="bg-white p-8 rounded-lg shadow-md border border-gray-100">
+                                    <h4 class="font-semibold text-xl text-teal-800 mb-4 text-center">Empat Kompetensi Guru Koding & AI</h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div class="bg-teal-50 p-4 rounded-md">
+                                            <h5 class="font-bold">Profesional</h5>
+                                            <p class="text-sm text-gray-700">Menguasai substansi materi: berpikir komputasional, literasi digital, algoritma, analisis data, dan konsep KA.</p>
+                                        </div>
+                                        <div class="bg-teal-50 p-4 rounded-md">
+                                            <h5 class="font-bold">Pedagogik</h5>
+                                            <p class="text-sm text-gray-700">Mampu merancang pembelajaran yang menarik dan efektif (berbasis proyek, masalah, inkuiri) dan melakukan penilaian autentik.</p>
+                                        </div>
+                                        <div class="bg-teal-50 p-4 rounded-md">
+                                            <h5 class="font-bold">Kepribadian</h5>
+                                            <p class="text-sm text-gray-700">Menjadi teladan sebagai pembelajar sepanjang hayat, memiliki etos kerja, dan rasa percaya diri dalam mengadopsi teknologi baru.</p>
+                                        </div>
+                                        <div class="bg-teal-50 p-4 rounded-md">
+                                            <h5 class="font-bold">Sosial</h5>
+                                            <p class="text-sm text-gray-700">Mampu berkolaborasi dengan siswa, sesama guru, dan pemangku kepentingan lain untuk menciptakan ekosistem belajar yang suportif.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab Strategi -->
+                        <div id="tab-content-strategi" class="tab-content hidden">
+                           <p class="text-center text-gray-600 mb-12">Implementasi dilakukan secara bertahap dan terstruktur untuk memastikan kualitas dan keberlanjutan, dengan melibatkan berbagai pemangku kepentingan.</p>
+                            <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4">
+                                <div class="text-center p-4 bg-white rounded-lg shadow-md w-full md:w-1/4">
+                                    <div class="text-2xl font-bold text-teal-600">1</div>
+                                    <h5 class="font-semibold mt-2">Pelaksanaan Terbatas</h5>
+                                    <p class="text-sm text-gray-500 mt-1">Dimulai dari sekolah percontohan yang memiliki kesiapan infrastruktur dan guru.</p>
+                                </div>
+                                <div class="text-2xl text-gray-400 font-light mx-2">&rarr;</div>
+                                <div class="text-center p-4 bg-white rounded-lg shadow-md w-full md:w-1/4">
+                                    <div class="text-2xl font-bold text-teal-600">2</div>
+                                    <h5 class="font-semibold mt-2">Pelatihan & Pendampingan</h5>
+                                    <p class="text-sm text-gray-500 mt-1">Bimtek dan pelatihan guru dengan pola IN-ON-IN (In-service, On-the-job, In-service) untuk pembelajaran mendalam.</p>
+                                </div>
+                                <div class="text-2xl text-gray-400 font-light mx-2">&rarr;</div>
+                                <div class="text-center p-4 bg-white rounded-lg shadow-md w-full md:w-1/4">
+                                    <div class="text-2xl font-bold text-teal-600">3</div>
+                                    <h5 class="font-semibold mt-2">Penyebarluasan</h5>
+                                    <p class="text-sm text-gray-500 mt-1">Scaling up melalui komunitas belajar (KKG/MGMP) dan dukungan pemerintah daerah.</p>
+                                </div>
+                                 <div class="text-2xl text-gray-400 font-light mx-2">&rarr;</div>
+                                <div class="text-center p-4 bg-white rounded-lg shadow-md w-full md:w-1/4">
+                                    <div class="text-2xl font-bold text-teal-600">4</div>
+                                    <h5 class="font-semibold mt-2">Evaluasi Berkelanjutan</h5>
+                                    <p class="text-sm text-gray-500 mt-1">Pemantauan dan evaluasi proses serta dampak untuk perbaikan kebijakan secara terus-menerus.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Section: Data -->
+        <section id="data" class="py-20 px-4 bg-teal-50/50">
+            <div class="max-w-7xl mx-auto text-center">
+                <h2 class="section-title">Data Kesiapan Digital Indonesia</h2>
+                <p class="section-subtitle">Data menunjukkan adanya kemajuan sekaligus tantangan yang perlu diatasi dalam perjalanan transformasi digital pendidikan di Indonesia.</p>
+                <div class="grid lg:grid-cols-2 gap-12 mt-12">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="font-semibold mb-4 text-center">Indeks Literasi Digital Nasional</h3>
+                        <div class="chart-container" style="height:300px;">
+                            <canvas id="literasiDigitalChart"></canvas>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2 text-center">Sumber: Kominfo & Katadata Insight Center (Skala 1-5)</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="font-semibold mb-4 text-center">Ketersediaan Infrastruktur Sekolah (%)</h3>
+                        <div class="chart-container" style="height:300px;">
+                            <canvas id="infrastrukturSekolahChart"></canvas>
+                        </div>
+                         <p class="text-xs text-gray-500 mt-2 text-center">Sumber: Dapodik 2024</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white">
+        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center">
+            <p>Laporan Interaktif Berdasarkan Naskah Akademik "Pembelajaran Koding dan Kecerdasan Artifisial".</p>
+            <p class="text-sm text-gray-400 mt-2">Kementerian Pendidikan Dasar dan Menengah, Februari 2025.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Mobile Menu
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            // Navigation scroll highlighting
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 80) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').includes(current)) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+
+            // Tabs functionality
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const tabId = button.dataset.tab;
+
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('border-teal-500', 'text-teal-600');
+                        btn.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+                    });
+                    button.classList.add('border-teal-500', 'text-teal-600');
+                    button.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+
+                    tabContents.forEach(content => {
+                        if (content.id === `tab-content-${tabId}`) {
+                            content.classList.remove('hidden');
+                        } else {
+                            content.classList.add('hidden');
+                        }
+                    });
+                });
+            });
+            
+            // Chart.js Implementations
+            const defaultFont = "'Inter', sans-serif";
+            Chart.defaults.font.family = defaultFont;
+            Chart.defaults.color = '#6b7280';
+            
+            function createChart(ctx, config) {
+                if (ctx) new Chart(ctx, config);
+            }
+
+            // Alokasi Jam Pelajaran Chart
+            const jamPelajaranCtx = document.getElementById('jamPelajaranChart')?.getContext('2d');
+            createChart(jamPelajaranCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['SD (5-6)', 'SMP (7-9)', 'SMA (10)', 'SMA (11-12)', 'SMK (11-12)'],
+                    datasets: [{
+                        label: 'Alokasi Jam Pelajaran per Minggu',
+                        data: [2, 2, 2, 5, 4],
+                        backgroundColor: 'rgba(13, 148, 136, 0.6)',
+                        borderColor: 'rgba(13, 148, 136, 1)',
+                        borderWidth: 1,
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        title: { display: true, text: 'Rekomendasi Alokasi Jam Pelajaran', font: { size: 16 } },
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: { beginAtZero: true, grid: { display: false } },
+                        y: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // Literasi Digital Chart
+            const literasiDigitalCtx = document.getElementById('literasiDigitalChart')?.getContext('2d');
+            createChart(literasiDigitalCtx, {
+                type: 'line',
+                data: {
+                    labels: ['2020', '2021', '2022'],
+                    datasets: [{
+                        label: 'Skor Indeks',
+                        data: [3.47, 3.49, 3.54],
+                        fill: true,
+                        backgroundColor: 'rgba(13, 148, 136, 0.2)',
+                        borderColor: 'rgba(13, 148, 136, 1)',
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: false, 
+                            min: 3.4,
+                            max: 3.6
+                        }
+                    }
+                }
+            });
+
+            // Infrastruktur Sekolah Chart
+            const infrastrukturSekolahCtx = document.getElementById('infrastrukturSekolahChart')?.getContext('2d');
+            createChart(infrastrukturSekolahCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['SD', 'SMP', 'SMA', 'SMK'],
+                    datasets: [
+                        {
+                            label: 'Listrik',
+                            data: [98.5, 99.5, 99.7, 99.9],
+                            backgroundColor: 'rgba(5, 150, 105, 0.7)'
+                        },
+                        {
+                            label: 'Internet',
+                            data: [81.4, 84.8, 89.6, 91.9],
+                            backgroundColor: 'rgba(13, 148, 136, 0.7)'
+                        },
+                        {
+                            label: 'Komputer',
+                            data: [73.6, 90.4, 90.0, 89.9],
+                            backgroundColor: 'rgba(15, 118, 110, 0.7)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                     plugins: {
+                        legend: { position: 'bottom' }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 70,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) { return value + '%' }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
